@@ -1,7 +1,6 @@
 package pkg2pc.assign01;
 
 import java.util.ArrayList;
-import java.util.concurrent.RecursiveTask;
 
 /**
  * Assignment 01 - Implement parallel maze solving algorithm using JAVA Concurrent API
@@ -46,7 +45,7 @@ public class MazeSolver {
         StdDraw.show(30);
 
         // Checks all available directions from current cell
-        ArrayList<Integer> available = new ArrayList<Integer>();
+        ArrayList<Integer> available = new ArrayList<>();
         if (!this.maze.isSouth(x, y) && !this.maze.isVisited(x, y - 1)) available.add(0);
         if (!this.maze.isNorth(x, y) && !this.maze.isVisited(x, y + 1)) available.add(1);
         if (!this.maze.isWest(x, y) && !this.maze.isVisited(x - 1, y)) available.add(2);
