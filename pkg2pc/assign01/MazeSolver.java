@@ -10,7 +10,8 @@ import java.util.concurrent.RecursiveTask;
  *
  * @author Janis
  */
-public class MazeSolver extends RecursiveTask<Integer> {
+public class MazeSolver {
+    private final static Object lock = new Object();
 
     Maze maze;
 
@@ -31,8 +32,10 @@ public class MazeSolver extends RecursiveTask<Integer> {
      */
     public void solveMaze(int x, int y) {
 
-        this.x = x;
-        this.y = y;
+        synchronized (lock) {
+            this.x = x;
+            this.y = y;
+        }
 
         StdDraw.setPenColor(StdDraw.BOOK_RED);
         StdDraw.filledCircle(x + 0.5, y + 0.5, 0.25);
@@ -43,34 +46,42 @@ public class MazeSolver extends RecursiveTask<Integer> {
         // TODO Your algorithm here. If necessary, create onother methods (for example, recursive solve method)
 
         if (!this.maze.isSouth(x, y) && !this.maze.isVisited(x, y - 1) && !(this.maze.isVisited(30, 30))) {
-            this.maze.setVisited(x, y);
-            solveMaze(x, y - 1);
+            synchronized (lock) {
+                this.maze.setVisited(x, y);
+            }
 
+            Thread thread = new Thread( () -> solveMaze(x, y - 1) );
+            thread.setDaemon(true);
+            thread.start();
         }
         if (!this.maze.isNorth(x, y) && !this.maze.isVisited(x, y + 1) && !(this.maze.isVisited(30, 30))) {
-            this.maze.setVisited(x, y + 1);
-            solveMaze(x, y + 1);
+            synchronized (lock) {
+                this.maze.setVisited(x, y + 1);
+            }
 
+            Thread thread = new Thread(() -> solveMaze(x, y + 1));
+            thread.setDaemon(true);
+            thread.start();
         }
         if (!this.maze.isWest(x, y) && !this.maze.isVisited(x - 1, y) && !(this.maze.isVisited(30, 30))) {
-            this.maze.setVisited(x - 1, y);
-            solveMaze(x - 1, y);
+            synchronized (lock) {
+                this.maze.setVisited(x - 1, y);
+            }
 
+            Thread thread = new Thread(() -> solveMaze(x - 1, y));
+            thread.setDaemon(true);
+            thread.start();
         }
         if (!this.maze.isEast(x, y) && !this.maze.isVisited(x + 1, y) && !(this.maze.isVisited(30, 30))) {
-            this.maze.setVisited(x, y);
-            solveMaze(x + 1, y);
+            synchronized (lock) {
+                this.maze.setVisited(x, y);
+            }
+
+            Thread thread = new Thread(() -> solveMaze(x + 1, y));
+            thread.setDaemon(true);
+            thread.start();
         }
 
-    }
-
-
-
-
-    @Override
-    protected Integer compute() {
-
-        return null;
     }
 }
 

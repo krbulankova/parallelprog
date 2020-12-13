@@ -150,5 +150,4 @@ public class Maze {
         maze.setSolver(new MazeSolver(maze));
         maze.solve();
     }
-
 }
