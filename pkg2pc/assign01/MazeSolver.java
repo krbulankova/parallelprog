@@ -1,5 +1,6 @@
 package pkg2pc.assign01;
 
+import java.util.ArrayList;
 import java.util.concurrent.RecursiveTask;
 
 /**
@@ -31,6 +32,7 @@ public class MazeSolver {
      * @param y starting position in y direction
      */
     public void solveMaze(int x, int y) {
+        if (this.maze.isVisited(30, 30)) return;
 
         synchronized (lock) {
             this.x = x;
@@ -43,45 +45,56 @@ public class MazeSolver {
         this.maze.setVisited(x, y);
         StdDraw.show(30);
 
-        // TODO Your algorithm here. If necessary, create onother methods (for example, recursive solve method)
+        // Checks all available directions from current cell
+        ArrayList<Integer> available = new ArrayList<Integer>();
+        if (!this.maze.isSouth(x, y) && !this.maze.isVisited(x, y - 1)) available.add(0);
+        if (!this.maze.isNorth(x, y) && !this.maze.isVisited(x, y + 1)) available.add(1);
+        if (!this.maze.isWest(x, y) && !this.maze.isVisited(x - 1, y)) available.add(2);
+        if (!this.maze.isEast(x, y) && !this.maze.isVisited(x + 1, y)) available.add(3);
 
-        if (!this.maze.isSouth(x, y) && !this.maze.isVisited(x, y - 1) && !(this.maze.isVisited(30, 30))) {
-            synchronized (lock) {
-                this.maze.setVisited(x, y);
+        this.maze.setVisited(x, y);
+
+        //   Iteratively call recursive function in separate thread for every available direction, but
+        // call recursive function in this thread if list element is the last one
+        for (int i = 0; i < available.size(); i++) {
+            Thread thread;
+
+            switch (available.get(i)) {
+                case 0:
+                    if (i == available.size() - 1) solveMaze(x, y - 1);
+                    else {
+                        thread = new Thread(() -> solveMaze(x, y - 1));
+                        thread.start();
+                    }
+                    break;
+
+                case 1:
+                    if (i == available.size() - 1) solveMaze(x, y + 1);
+                    else {
+                        thread = new Thread(() -> solveMaze(x, y + 1));
+                        thread.start();
+                    }
+                    break;
+
+                case 2:
+                    if (i == available.size() - 1) solveMaze(x - 1, y);
+                    else {
+                        thread = new Thread(() -> solveMaze(x - 1, y));
+                        thread.start();
+                    }
+                    break;
+
+                case 3:
+                    if (i == available.size() - 1) solveMaze(x + 1, y);
+                    else {
+                        thread = new Thread(() -> solveMaze(x + 1, y));
+                        thread.start();
+                    }
+                    break;
+                default:
+                    break;
             }
-
-            Thread thread = new Thread( () -> solveMaze(x, y - 1) );
-            thread.setDaemon(true);
-            thread.start();
         }
-        if (!this.maze.isNorth(x, y) && !this.maze.isVisited(x, y + 1) && !(this.maze.isVisited(30, 30))) {
-            synchronized (lock) {
-                this.maze.setVisited(x, y + 1);
-            }
-
-            Thread thread = new Thread(() -> solveMaze(x, y + 1));
-            thread.setDaemon(true);
-            thread.start();
-        }
-        if (!this.maze.isWest(x, y) && !this.maze.isVisited(x - 1, y) && !(this.maze.isVisited(30, 30))) {
-            synchronized (lock) {
-                this.maze.setVisited(x - 1, y);
-            }
-
-            Thread thread = new Thread(() -> solveMaze(x - 1, y));
-            thread.setDaemon(true);
-            thread.start();
-        }
-        if (!this.maze.isEast(x, y) && !this.maze.isVisited(x + 1, y) && !(this.maze.isVisited(30, 30))) {
-            synchronized (lock) {
-                this.maze.setVisited(x, y);
-            }
-
-            Thread thread = new Thread(() -> solveMaze(x + 1, y));
-            thread.setDaemon(true);
-            thread.start();
-        }
-
     }
 }
 
